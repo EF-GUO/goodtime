@@ -1,0 +1,38 @@
+name: Custom icon APK
+on:
+  push:
+    branches: [custom-icon-apk]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Install SDK platform
+        run: sdkmanager "platforms;android-37"
+      - name: Build APK
+        run: ./gradlew --no-daemon :androidApp:assembleFdroidRelease
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(find androidApp/build/outputs/apk/fdroid/release -name '*.apk' ! -name '*unsigned*' -print -quit)
+          test -n "$apk"
+          mkdir -p out
+          cp "$apk" out/Goodtime-3.3.0-Custom.apk
+          tools=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$tools/apksigner" verify --verbose --print-certs out/Goodtime-3.3.0-Custom.apk
+          "$tools/aapt2" dump badging out/Goodtime-3.3.0-Custom.apk | head -8
+          (cd out && sha256sum Goodtime-3.3.0-Custom.apk > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Goodtime-Custom-APK
+          path: out/
+          if-no-files-found: error
