@@ -13,16 +13,29 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 21
+          java-version: |
+            17
+            21
       - uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: false
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4.0.4
         with:
           packages: "platform-tools platforms;android-37.0 build-tools;37.0.0"
       - name: Check Android SDK
         run: sdkmanager --list_installed
+      - name: Check dependency repositories and Java
+        shell: bash
+        run: |
+          java -version
+          echo "JDK17=$JAVA_HOME_17_X64"
+          echo "JDK21=$JAVA_HOME_21_X64"
+          for url in 'https://plugins.gradle.org/m2/org/gradle/toolchains/foojay-resolver-convention/org.gradle.toolchains.foojay-resolver-convention.gradle.plugin/1.0.0/org.gradle.toolchains.foojay-resolver-convention.gradle.plugin-1.0.0.pom' 'https://repo.maven.apache.org/maven2/' 'https://dl.google.com/dl/android/maven2/master-index.xml'; do
+            curl -L -sS --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code} %{url_effective}\n' "$url" || true
+          done
       - name: Build APK
-        run: ./gradlew --no-daemon :androidApp:assembleFdroidRelease
+        run: ./gradlew --no-daemon --stacktrace --info -Porg.gradle.java.installations.auto-download=false :androidApp:assembleFdroidRelease
       - name: Verify APK
         shell: bash
         run: |

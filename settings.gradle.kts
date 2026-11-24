@@ -15,9 +15,7 @@ pluginManagement {
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
+// CI supplies JDK 17 and 21 locally; automatic JDK provisioning is not required.
 
 dependencyResolutionManagement {
     repositories {
