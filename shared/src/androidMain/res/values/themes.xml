@@ -33,7 +33,7 @@
     </style>
 
     <style name="Theme.Goodtime.Splash" parent="NightAdjusted.Theme.Splash">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/goodtime_custom_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.Goodtime</item>
     </style>
 

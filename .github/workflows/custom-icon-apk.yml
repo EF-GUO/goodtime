@@ -43,14 +43,15 @@ jobs:
           apk=$(find androidApp/build/outputs/apk/fdroid/release -name '*.apk' ! -name '*unsigned*' -print -quit)
           test -n "$apk"
           mkdir -p out
-          cp "$apk" out/Goodtime-3.3.0-Custom.apk
+          cp "$apk" out/Goodtime-3.3.0-Original-Logo.apk
           tools=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
-          "$tools/apksigner" verify --verbose --print-certs out/Goodtime-3.3.0-Custom.apk
-          "$tools/aapt2" dump badging out/Goodtime-3.3.0-Custom.apk > out/apk-info.txt
+          "$tools/apksigner" verify --verbose --print-certs out/Goodtime-3.3.0-Original-Logo.apk
+          "$tools/aapt2" dump badging out/Goodtime-3.3.0-Original-Logo.apk > out/apk-info.txt
           head -8 out/apk-info.txt
-          (cd out && sha256sum Goodtime-3.3.0-Custom.apk > SHA256SUMS.txt)
+          python3 -c 'import zipfile,hashlib; z=zipfile.ZipFile("out/Goodtime-3.3.0-Original-Logo.apk"); assert any(hashlib.sha256(z.read(n)).hexdigest()=="0a274e904091f15728a823897c9affd1d801be2a71d7e3c995961b1ca4dd30a9" for n in z.namelist() if n.endswith(".webp")), "Original icon bytes missing"'
+          (cd out && sha256sum Goodtime-3.3.0-Original-Logo.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v7
         with:
-          name: Goodtime-Custom-APK
+          name: Goodtime-Original-Logo-APK
           path: out/
           if-no-files-found: error
